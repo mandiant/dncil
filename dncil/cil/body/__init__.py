@@ -26,6 +26,7 @@ class CilMethodBody:
     """store managed method body"""
 
     def __init__(self, reader: CilMethodBodyReaderBase):
+        self.offset: int
         self.header_size: int
         self.flags: CilMethodBodyFlags
         self.max_stack: int
@@ -38,8 +39,8 @@ class CilMethodBody:
         self.instructions: List[Instruction] = []
         self.exception_handlers: List[ExceptionHandler] = []
 
-        # track start index so we can calculate total method body size later
-        self._start_of_header: int
+        # set method offset
+        self.offset = reader.tell()
 
         # parse the method body
         self.parse_header(reader)
@@ -48,7 +49,7 @@ class CilMethodBody:
 
         # use initial offset + method body size to read method body bytes (not the most efficient)
         final_pos = reader.tell()
-        reader.seek(self._start_of_header)
+        reader.seek(self.offset)
         self.raw_bytes = reader.read(self.size)
         reader.seek(final_pos)
 
@@ -73,8 +74,6 @@ class CilMethodBody:
 
     def parse_header(self, reader: CilMethodBodyReaderBase):
         """get method body header"""
-        self._start_of_header = reader.tell()
-
         # header byte gives us the format and, in fat format, implementation flags used at runtime
         header_byte: int = reader.read_uint8()[0]
         if header_byte & CorILMethod.FormatMask in (CorILMethod.TinyFormat, CorILMethod.TinyFormat1):
@@ -112,7 +111,7 @@ class CilMethodBody:
 
     def parse_instructions(self, reader: CilMethodBodyReaderBase):
         """get CIL instructions"""
-        current_offset: int = 0
+        current_offset: int = self.offset + self.header_size
         code_end_offset: int = reader.tell() + self.code_size
 
         # instructions are stored sequentially so we just read through the stream
@@ -125,7 +124,7 @@ class CilMethodBody:
         """get exception handlers"""
         if not self.flags.MoreSects:
             # exception handlers are stored in extra data sections so bail if there are none
-            self.size = reader.tell() - self._start_of_header
+            self.size = reader.tell() - self.offset
             return
 
         # extra data sections start at first 4-byte boundary
@@ -136,7 +135,7 @@ class CilMethodBody:
 
         # unsure on this check - may be some edge case handler by dnlib
         if header_byte & CorILMethodSect.KindMask != 1:
-            self.size = reader.tell() - self._start_of_header
+            self.size = reader.tell() - self.offset
             return
 
         if header_byte & CorILMethodSect.FatFormat:
@@ -146,7 +145,7 @@ class CilMethodBody:
             # tiny format
             self.parse_tiny_exception_handlers(reader)
 
-        self.size = reader.tell() - self._start_of_header
+        self.size = reader.tell() - self.offset
 
     def parse_fat_exception_handlers(self, reader: CilMethodBodyReaderBase):
         """get exception handlers in fat format"""
