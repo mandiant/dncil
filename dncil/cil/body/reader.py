@@ -117,7 +117,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         branch_offset_bytes: bytes
 
         branch_offset, branch_offset_bytes = self.read_uint32()
-        return ((insn.offset + insn.size + branch_offset) & 0xFFFFFFFF), branch_offset_bytes
+        return insn.offset + insn.size + branch_offset, branch_offset_bytes
 
     def read_inline_field(self, insn: Instruction) -> Tuple[Token, bytes]:
         """get inline managed field token"""
@@ -226,7 +226,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         branch_offset_bytes: bytes
 
         branch_offset, branch_offset_bytes = self.read_uint8()
-        return ((insn.offset + insn.size + branch_offset) & 0xFF), branch_offset_bytes
+        return insn.offset + insn.size + branch_offset, branch_offset_bytes
 
     def read_short_inline_i(self, insn: Instruction) -> Tuple[int, bytes]:
         """get inline 8-bit integer"""
