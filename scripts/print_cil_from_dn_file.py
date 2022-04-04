@@ -16,83 +16,40 @@ from dncil.cil.error import MethodBodyFormatError
 from dncil.clr.token import Token, InvalidToken
 from dncil.cil.body.reader import CilMethodBodyReaderBase
 
+# hack to map token indexes back to dnfile tables
+DN_META_TABLES_BY_INDEX = {table.value: table.name for table in MetadataTables}
 
-class CilMethodBodyReaderDnfile(CilMethodBodyReaderBase):
+
+class DnMethodBodyReader(CilMethodBodyReaderBase):
     def __init__(self, pe: dnfile.dnPE, row: dnfile.mdtable.MethodDefRow):
+        """ """
         self.pe = pe
-        self.rva = row.Rva
-
-    def _get_string(self, token):
-        us = self.pe.net.metadata.streams.get(b"#US", None)
-        if us is None:
-            return token
-        return dnfile.stream.UserString(us.get(token.rid)).value
+        self.rva = self.pe.get_offset_from_rva(row.Rva)
 
     def read(self, n):
-        data = self.pe.get_data(self.rva, n)
+        """ """
+        data = self.pe.get_data(self.pe.get_rva_from_offset(self.rva), n)
         self.rva += n
         return data
 
     def tell(self):
+        """ """
         return self.rva
 
     def seek(self, rva):
+        """ """
         self.rva = rva
 
     def get_token(self, value, is_str=False):
-        tables = {
-            MetadataTables.Module: "Module",
-            MetadataTables.TypeRef: "TypeRef",
-            MetadataTables.TypeDef: "TypeDef",
-            MetadataTables.FieldPtr: "FieldPtr",
-            MetadataTables.Field: "Field",
-            MetadataTables.MethodPtr: "MethodPtr",
-            MetadataTables.MethodDef: "MethodDef",
-            MetadataTables.ParamPtr: "ParamPtr",
-            MetadataTables.Param: "Param",
-            MetadataTables.InterfaceImpl: "InterfaceImpl",
-            MetadataTables.MemberRef: "MemberRef",
-            MetadataTables.Constant: "Constant",
-            MetadataTables.CustomAttribute: "CustomAttribute",
-            MetadataTables.FieldMarshal: "FieldMarshal",
-            MetadataTables.DeclSecurity: "DeclSecurity",
-            MetadataTables.ClassLayout: "ClassLayout",
-            MetadataTables.FieldLayout: "FieldLayout",
-            MetadataTables.StandAloneSig: "StandAloneSig",
-            MetadataTables.EventMap: "EventMap",
-            MetadataTables.EventPtr: "EventPtr",
-            MetadataTables.Event: "Event",
-            MetadataTables.PropertyMap: "PropertyMap",
-            MetadataTables.PropertyPtr: "PropertyPtr",
-            MetadataTables.Property: "Property",
-            MetadataTables.MethodSemantics: "MethodSemantics",
-            MetadataTables.MethodImpl: "MethodImpl",
-            MetadataTables.ModuleRef: "ModuleRef",
-            MetadataTables.TypeSpec: "TypeSpec",
-            MetadataTables.ImplMap: "ImplMap",
-            MetadataTables.FieldRva: "FieldRva",
-            MetadataTables.Assembly: "Assembly",
-            MetadataTables.AssemblyProcessor: "AssemblyProcessor",
-            MetadataTables.AssemblyOS: "AssemblyOS",
-            MetadataTables.AssemblyRef: "AssemblyRef",
-            MetadataTables.AssemblyRefProcessor: "AssemblyRefProcessor",
-            MetadataTables.AssemblyRefOS: "AssemblyRefOS",
-            MetadataTables.File: "File",
-            MetadataTables.ExportedType: "ExportedType",
-            MetadataTables.ManifestResource: "ManifestResource",
-            MetadataTables.NestedClass: "NestedClass",
-            MetadataTables.GenericParam: "GenericParam",
-            MetadataTables.GenericMethod: "GenericMethod",
-            MetadataTables.GenericParamConstraint: "GenericParamConstraint",
-        }
+        """ """
         token = Token(value)
 
         if is_str:
-            return self._get_string(token)
+            return self.pe.net.user_strings.get_us(token.rid).value
 
-        table_name = tables.get(token.table, "")
+        table_name = DN_META_TABLES_BY_INDEX.get(token.table, "")
         if not table_name:
-            # table index is not valid
+            # table_index is not valid
             return InvalidToken(token.value)
 
         table = getattr(self.pe.net.mdtables, table_name, None)
@@ -108,7 +65,7 @@ class CilMethodBodyReaderDnfile(CilMethodBodyReaderBase):
 
 
 def read_method_body_from_row(dn, row):
-    return CilMethodBody(CilMethodBodyReaderDnfile(dn, row))
+    return CilMethodBody(DnMethodBodyReader(dn, row))
 
 
 def format_operand(op):

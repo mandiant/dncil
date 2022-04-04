@@ -159,7 +159,7 @@ class Instruction:
         """check if instruction is load string"""
         return self.opcode.value in (OpCodeValue.Ldstr,)
 
-    def is_ldc_i4(self) -> bool:
+    def is_ldc(self) -> bool:
         """check if instruction is load constant"""
         return self.opcode.value in (
             OpCodeValue.Ldc_I4_M1,
@@ -174,9 +174,12 @@ class Instruction:
             OpCodeValue.Ldc_I4_8,
             OpCodeValue.Ldc_I4_S,
             OpCodeValue.Ldc_I4,
+            OpCodeValue.Ldc_I8,
+            OpCodeValue.Ldc_R4,
+            OpCodeValue.Ldc_R8,
         )
 
-    def get_ldc_i4(self) -> Optional[int]:
+    def get_ldc(self) -> Union[int, float, None]:
         """get constant for load instruction"""
         if self.opcode.value == OpCodeValue.Ldc_I4_M1:
             return -1
@@ -199,9 +202,15 @@ class Instruction:
         elif self.opcode.value == OpCodeValue.Ldc_I4_8:
             return 8
         elif self.opcode.value == OpCodeValue.Ldc_I4_S:
-            return cast(int, self.operand) & 0xFF
+            return cast(int, self.operand)
         elif self.opcode.value == OpCodeValue.Ldc_I4:
-            return cast(int, self.operand) & 0xFFFFFFFF
+            return cast(int, self.operand)
+        elif self.opcode.value == OpCodeValue.Ldc_I8:
+            return cast(int, self.operand)
+        elif self.opcode.value == OpCodeValue.Ldc_R4:
+            return cast(float, self.operand)
+        elif self.opcode.value == OpCodeValue.Ldc_R8:
+            return cast(float, self.operand)
         else:
             return None
 
