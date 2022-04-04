@@ -116,7 +116,7 @@ def test_read_tiny_header_instructions():
     body = CilMethodBody(reader)
 
     assert len(body.instructions) == 0x3
-    assert body.instructions[0].offset == 0x0
+    assert body.instructions[0].offset == 0x1
     assert body.instructions[0].opcode.value == OpCodeValue.Ldarg_0
     assert isinstance(body.instructions[1].operand, Token)
     assert body.instructions[1].operand.table == 0xA
@@ -126,7 +126,7 @@ def test_read_tiny_header_instructions():
         body.instructions[1].get_opcode_bytes() + body.instructions[1].get_operand_bytes()
         == body.instructions[1].get_bytes()
     )
-    assert body.instructions[2].offset == 0x6
+    assert body.instructions[2].offset == 0x7
     assert body.instructions[2].opcode.value == OpCodeValue.Ret
 
 
@@ -155,7 +155,7 @@ def test_read_fat_header_instructions():
     body = CilMethodBody(reader)
 
     assert len(body.instructions) == 0xB
-    assert body.instructions[0].offset == 0x0
+    assert body.instructions[0].offset == body.offset + body.header_size
     assert body.instructions[0].opcode.value == OpCodeValue.Ldstr
     assert body.instructions[0].mnemonic == "ldstr"
     assert isinstance(body.instructions[1].operand, Token)
@@ -168,7 +168,7 @@ def test_read_fat_header_instructions():
     )
     assert body.instructions[1].size == len(body.instructions[1].get_bytes())
     assert body.instructions[1].get_opcode_size() + body.instructions[1].get_operand_size() == body.instructions[1].size
-    assert body.instructions[9].offset == 0x23
+    assert body.instructions[9].offset == 0x2F
     assert body.instructions[9].opcode.value == OpCodeValue.Endfinally
 
 
