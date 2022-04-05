@@ -56,6 +56,9 @@ class CilMethodBody:
         # calculate exception handlers size
         self.exception_handlers_size = self.size - self.header_size - self.code_size
 
+    def __int__(self) -> int:
+        return self.offset
+
     def get_bytes(self) -> bytes:
         """get method body bytes"""
         return self.raw_bytes

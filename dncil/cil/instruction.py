@@ -41,6 +41,9 @@ class Instruction:
     def __repr__(self) -> str:
         return str(self)
 
+    def __int__(self) -> int:
+        return self.offset
+
     @property
     def mnemonic(self):
         """get instruction opcode mnemonic"""
