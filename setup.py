@@ -33,9 +33,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     author="Mike Hunhoff",
     author_email="michael.hunhoff@mandiant.com",
-    packages=setuptools.find_packages(exclude=["tests"]),
+    url="https://www.github.com/mandiant/dncil",
+    packages=setuptools.find_packages(exclude=["tests", "scripts"]),
     package_dir={"dncil": "dncil"},
-    include_package_data=True,
     install_requires=requirements,
     extras_require={
         "dev": [
@@ -52,5 +52,15 @@ setuptools.setup(
         ],
     },
     zip_safe=False,
+    keywords=".net dotnet cil il disassembly FLARE",
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Information Technology",
+        "License :: OSI Approved :: Apache Software License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Topic :: Security",
+    ],
     python_requires=">=3.7",
 )
