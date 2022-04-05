@@ -42,3 +42,13 @@ class InvalidToken(Token):
 
     def __str__(self):
         return "invalid token(0x%08X)" % self.value
+
+
+class StringToken(Token):
+    """store string managed token"""
+
+    def __init__(self, value):
+        super(StringToken, self).__init__(value)
+
+    def __str__(self):
+        return "string token(0x%08X)" % self.value

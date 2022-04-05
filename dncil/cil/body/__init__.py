@@ -13,10 +13,10 @@ from typing import TYPE_CHECKING, List, Optional
 if TYPE_CHECKING:
     from dncil.cil.instruction import Instruction
     from dncil.cil.body.reader import CilMethodBodyReaderBase
-    from dncil.clr.token import Token
 
 from dncil.cil.enums import CorILMethod, CorILMethodSect
 from dncil.cil.error import MethodBodyFormatError
+from dncil.clr.token import Token
 from dncil.cil.exception import ExceptionHandler
 from dncil.cil.body.flags import CilMethodBodyFlags
 from dncil.cil.instruction import Instruction
@@ -98,7 +98,7 @@ class CilMethodBody:
                 # zero indicates there are no local variables
                 self.local_var_sig_tok = None
             else:
-                self.local_var_sig_tok = reader.get_token(local_var_sig_tok)
+                self.local_var_sig_tok = Token(local_var_sig_tok)
 
             # ECMA states fat format size is "currently" 3; we may need to change this calculation if that ever changes
             reader.seek(reader.tell() - 12 + self.header_size * 4)
@@ -168,7 +168,7 @@ class CilMethodBody:
             eh.handler_end = eh.handler_start + reader.read_uint32()[0]
 
             if eh.is_catch():
-                eh.catch_type = reader.get_token(reader.read_uint32()[0])
+                eh.catch_type = Token(reader.read_uint32()[0])
             elif eh.is_filter():
                 eh.filter_start = reader.read_uint32()[0]
             else:
@@ -194,7 +194,7 @@ class CilMethodBody:
             eh.handler_end = eh.handler_start + reader.read_uint8()[0]
 
             if eh.is_catch():
-                eh.catch_type = reader.get_token(reader.read_uint32()[0])
+                eh.catch_type = Token(reader.read_uint32()[0])
             elif eh.is_filter():
                 eh.filter_start = reader.read_uint32()[0]
             else:
