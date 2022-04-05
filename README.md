@@ -89,42 +89,46 @@ True
 00000000: 01 00 00 70                                       ...p
 ```
 
-## Installation
+## Installing
 
-Download the `dncil` source and run the following command from the root directory:
+To install `dncil` use `pip` to fetch the `dncil` module:
 
 ```
-$ pip install .
+$ pip install dncil
 ```
 
-To execute the example scripts be sure to install [`dnfile`](https://github.com/malwarefrank/dnfile). Alternatively, install `dncil` with the development dependencies as described in the `Testing` section below.
+To execute the example scripts be sure to install [`dnfile`](https://github.com/malwarefrank/dnfile). Alternatively, install `dncil` with the development dependencies as described in the `Development` section below.
 
 See [print_cil_from_bytes.py](scripts/print_cil_from_bytes.py) for a quick example of using `dncil`to print the `CIL` instructions found in a byte stream containing a `.NET` managed method.
 
-## Testing
+## Development
 
-Ensure you have installed `dncil` with the development dependencies:
+If you'd like to review and modify `dncil` source code, you'll need to download it from GitHub and install it locally. 
 
-```
-$ pip install .[dev]
-```
-
-Then invoke pytest:
+Use the following command to install `dncil` locally with development dependencies:
 
 ```
-$ python -m pytest tests/
+$ pip install /local/path/to/src[dev]
 ```
 
-## Linting
+You'll need `dncil`'s development dependencies to run tests and linting as described below.
 
-Ensure you have installed `dncil` with the development dependencies as described above.
+### Testing
 
-Then:
+Use the following command to run tests:
 
 ```
-$ pycodestyle --show-source dncil tests
-$ python -m black -l 120 -c .
-$ python -m isort --profile black --length-sort --line-width 120 -c .
+$ pytest /local/path/to/src/tests
+```
+
+### Linting
+
+Use the following commands to identify format errors:
+
+```
+$ pycodestyle --show-source /local/path/to/src/dncil /local/path/to/src/tests
+$ black -l 120 -c /local/path/to/src
+$ isort --profile black --length-sort --line-width 120 -c /local/path/to/src
 ```
 
 ## Credits
