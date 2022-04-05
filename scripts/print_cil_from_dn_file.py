@@ -5,6 +5,13 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License
 #  is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Union
+
+if TYPE_CHECKING:
+    from dnfile import dnPE
+    from dnfile.mdtable import MethodDefRow
 
 import argparse
 
@@ -13,95 +20,102 @@ from dnfile.enums import MetadataTables
 
 from dncil.cil.body import CilMethodBody
 from dncil.cil.error import MethodBodyFormatError
-from dncil.clr.token import Token, InvalidToken
+from dncil.clr.token import Token, StringToken, InvalidToken
 from dncil.cil.body.reader import CilMethodBodyReaderBase
 
-# hack to map token indexes back to dnfile tables
-DN_META_TABLES_BY_INDEX = {table.value: table.name for table in MetadataTables}
+# key token indexes to dotnet meta tables
+DOTNET_META_TABLES_BY_INDEX = {table.value: table.name for table in MetadataTables}
 
 
-class DnMethodBodyReader(CilMethodBodyReaderBase):
-    def __init__(self, pe: dnfile.dnPE, row: dnfile.mdtable.MethodDefRow):
+class DnfileMethodBodyReader(CilMethodBodyReaderBase):
+    def __init__(self, pe: dnPE, row: MethodDefRow):
         """ """
-        self.pe = pe
-        self.rva = self.pe.get_offset_from_rva(row.Rva)
+        self.pe: dnPE = pe
+        self.offset: int = self.pe.get_offset_from_rva(row.Rva)
 
-    def read(self, n):
+    def read(self, n: int) -> bytes:
         """ """
-        data = self.pe.get_data(self.pe.get_rva_from_offset(self.rva), n)
-        self.rva += n
+        data: bytes = self.pe.get_data(self.pe.get_rva_from_offset(self.offset), n)
+        self.offset += n
         return data
 
-    def tell(self):
+    def tell(self) -> int:
         """ """
-        return self.rva
+        return self.offset
 
-    def seek(self, rva):
+    def seek(self, offset: int) -> int:
         """ """
-        self.rva = rva
-
-    def get_token(self, value, is_str=False):
-        """ """
-        token = Token(value)
-
-        if is_str:
-            return self.pe.net.user_strings.get_us(token.rid).value
-
-        table_name = DN_META_TABLES_BY_INDEX.get(token.table, "")
-        if not table_name:
-            # table_index is not valid
-            return InvalidToken(token.value)
-
-        table = getattr(self.pe.net.mdtables, table_name, None)
-        if table is None:
-            # table index is valid but table is not present
-            return InvalidToken(token.value)
-
-        try:
-            return table.rows[token.rid - 1]
-        except IndexError:
-            # table index is valid but row index is not valid
-            return InvalidToken(token.value)
+        self.offset = offset
+        return self.offset
 
 
-def read_method_body_from_row(dn, row):
-    return CilMethodBody(DnMethodBodyReader(dn, row))
+def resolve_token(pe: dnPE, token: Token) -> Any:
+    """ """
+    if isinstance(token, StringToken):
+        return pe.net.user_strings.get_us(token.rid).value
+
+    table_name: str = DOTNET_META_TABLES_BY_INDEX.get(token.table, "")
+    if not table_name:
+        # table_index is not valid
+        return InvalidToken(token.value)
+
+    table: Any = getattr(pe.net.mdtables, table_name, None)
+    if table is None:
+        # table index is valid but table is not present
+        return InvalidToken(token.value)
+
+    try:
+        return table.rows[token.rid - 1]
+    except IndexError:
+        # table index is valid but row index is not valid
+        return InvalidToken(token.value)
 
 
-def format_operand(op):
-    if isinstance(op, str):
-        return f'"{op}"'
-    elif isinstance(op, int):
-        return hex(op)
-    elif isinstance(op, list):
-        return f"[{', '.join(['({:04X})'.format(x) for x in op])}]"
-    elif isinstance(op, dnfile.mdtable.MemberRefRow) and not isinstance(op.Class.row, dnfile.mdtable.TypeSpecRow):
-        return f"{str(op.Class.row.TypeNamespace)}.{op.Class.row.TypeName}::{op.Name}"
-    elif isinstance(op, (dnfile.mdtable.FieldRow, dnfile.mdtable.MethodDefRow)):
-        return f"{op.Name}"
-    else:
-        return "" if op is None else str(op)
+def read_method_body(pe: dnPE, row: MethodDefRow) -> CilMethodBody:
+    """ """
+    return CilMethodBody(DnfileMethodBodyReader(pe, row))
+
+
+def format_operand(pe: dnPE, operand: Any) -> str:
+    """ """
+    if isinstance(operand, Token):
+        operand = resolve_token(pe, operand)
+
+    if isinstance(operand, str):
+        return f'"{operand}"'
+    elif isinstance(operand, int):
+        return hex(operand)
+    elif isinstance(operand, list):
+        return f"[{', '.join(['({:04X})'.format(x) for x in operand])}]"
+    elif isinstance(operand, dnfile.mdtable.MemberRefRow):
+        if isinstance(operand.Class.row, (dnfile.mdtable.TypeRefRow,)):
+            return f"{str(operand.Class.row.TypeNamespace)}.{operand.Class.row.TypeName}::{operand.Name}"
+    elif isinstance(operand, dnfile.mdtable.TypeRefRow):
+        return f"{str(operand.TypeNamespace)}.{operand.TypeName}"
+    elif isinstance(operand, (dnfile.mdtable.FieldRow, dnfile.mdtable.MethodDefRow)):
+        return f"{operand.Name}"
+    elif operand is None:
+        return ""
+
+    return str(operand)
 
 
 def main(args):
-    dn = dnfile.dnPE(args.path)
+    """ """
+    pe: dnPE = dnfile.dnPE(args.path)
 
-    for row in dn.net.mdtables.MethodDef:
-        # loop through each row of MethodDef table and attempt to print IL
-
-        if not row.ImplFlags.miIL:
-            # we can only display IL methods
+    for row in pe.net.mdtables.MethodDef:
+        if not row.ImplFlags.miIL or any((row.Flags.mdAbstract, row.Flags.mdPinvokeImpl)):
+            # skip methods that do not have a method body
             continue
 
         try:
-            # attempt to read method body
-            body = read_method_body_from_row(dn, row)
+            body: CilMethodBody = read_method_body(pe, row)
         except MethodBodyFormatError as e:
             print(e)
             continue
 
         if not body.instructions:
-            # no IL to print
             continue
 
         print(f"\nMethod: {row.Name}")
@@ -111,7 +125,7 @@ def main(args):
                 + "    "
                 + f"{' '.join('{:02x}'.format(b) for b in insn.get_bytes()) : <20}"
                 + f"{str(insn.opcode) : <15}"
-                + format_operand(insn.operand)
+                + format_operand(pe, insn.operand)
             )
 
 

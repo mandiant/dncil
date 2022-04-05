@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 from dncil.cil.body import CilMethodBody
 from dncil.cil.error import MethodBodyFormatError
 from dncil.clr.local import Local
-from dncil.clr.token import Token
+from dncil.clr.token import Token, StringToken
 from dncil.cil.opcode import OpCodes, OpCodeValue, OperandType
 from dncil.clr.argument import Argument
 from dncil.cil.instruction import Instruction
@@ -43,11 +43,6 @@ class CilMethodBodyReaderBase(abc.ABC):
     @abc.abstractmethod
     def seek(self, rva: int) -> int:
         """jump to stream to offset"""
-        ...
-
-    @abc.abstractmethod
-    def get_token(self, value: int, is_str: bool = False) -> Union[Any, Token]:
-        """resolve value to a managed token or generic token object"""
         ...
 
     def _unpack(self, data_format: str) -> Tuple[Union[int, float], bytes]:
@@ -125,7 +120,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         token_bytes: bytes
 
         token_value, token_bytes = self.read_uint32()
-        return self.get_token(token_value), token_bytes
+        return Token(token_value), token_bytes
 
     def read_inline_i(self, insn: Instruction) -> Tuple[int, bytes]:
         """get inline 32-bit integer"""
@@ -141,7 +136,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         token_bytes: bytes
 
         token_value, token_bytes = self.read_uint32()
-        return self.get_token(token_value), token_bytes
+        return Token(token_value), token_bytes
 
     def read_inline_none(self, insn: Instruction) -> Tuple[None, bytes]:
         """get inline empty operand"""
@@ -161,7 +156,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         token_bytes: bytes
 
         token_value, token_bytes = self.read_uint32()
-        return self.get_token(token_value), token_bytes
+        return Token(token_value), token_bytes
 
     def read_inline_string(self, insn: Instruction) -> Tuple[Token, bytes]:
         """get inline managed string token"""
@@ -169,7 +164,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         token_bytes: bytes
 
         token_value, token_bytes = self.read_uint32()
-        return self.get_token(token_value, is_str=True), token_bytes
+        return StringToken(token_value), token_bytes
 
     def read_inline_switch(self, insn: Instruction) -> Tuple[list, bytes]:
         """get inline switch + branch targets"""
@@ -196,7 +191,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         token_bytes: bytes
 
         token_value, token_bytes = self.read_uint32()
-        return self.get_token(token_value), token_bytes
+        return Token(token_value), token_bytes
 
     def read_inline_type(self, insn: Instruction) -> Tuple[Token, bytes]:
         """get inline managed type token"""
@@ -204,7 +199,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         token_bytes: bytes
 
         token_value, token_bytes = self.read_uint32()
-        return self.get_token(token_value), token_bytes
+        return Token(token_value), token_bytes
 
     def read_inline_var(self, insn: Instruction) -> Tuple[Union[Local, Argument], bytes]:
         """get inline managed method argument index or managed method local index"""
@@ -328,9 +323,8 @@ class CilMethodBodyReaderBase(abc.ABC):
 class CilMethodBodyReaderBytes(CilMethodBodyReaderBase):
     """bytestream impl for abstract CilMethodBodyReaderBase"""
 
-    def __init__(self, bs: bytes, tokens: Dict = {}):
+    def __init__(self, bs: bytes):
         self.stream: io.BytesIO = io.BytesIO(bs)
-        self.tokens: Dict = tokens
 
     def read(self, n: int) -> bytes:
         return self.stream.read(n)
@@ -341,10 +335,7 @@ class CilMethodBodyReaderBytes(CilMethodBodyReaderBase):
     def seek(self, loc: int) -> int:
         return self.stream.seek(loc)
 
-    def get_token(self, value: int, is_str: bool = False) -> Union[Any, Token]:
-        return self.tokens.get(value, Token(value))
 
-
-def read_method_body_from_bytes(bio: bytes, tokens: dict = {}) -> CilMethodBody:
+def read_method_body_from_bytes(bio: bytes) -> CilMethodBody:
     """read managed method body from byte stream"""
-    return CilMethodBody(CilMethodBodyReaderBytes(bio, tokens))
+    return CilMethodBody(CilMethodBodyReaderBytes(bio))
