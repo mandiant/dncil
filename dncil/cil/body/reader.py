@@ -111,7 +111,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         branch_offset: int
         branch_offset_bytes: bytes
 
-        branch_offset, branch_offset_bytes = self.read_uint32()
+        branch_offset, branch_offset_bytes = self.read_int32()
         return insn.offset + insn.size + branch_offset, branch_offset_bytes
 
     def read_inline_field(self, insn: Instruction) -> Tuple[Token, bytes]:
@@ -179,7 +179,7 @@ class CilMethodBodyReaderBase(abc.ABC):
             branch_offset: int
             branch_offset_raw: bytes
 
-            branch_offset, branch_offset_raw = self.read_uint32()
+            branch_offset, branch_offset_raw = self.read_int32()
             branches.append(offset_after_insn + branch_offset)
             branches_bytes += branch_offset_raw
 
@@ -220,7 +220,7 @@ class CilMethodBodyReaderBase(abc.ABC):
         branch_offset: int
         branch_offset_bytes: bytes
 
-        branch_offset, branch_offset_bytes = self.read_uint8()
+        branch_offset, branch_offset_bytes = self.read_int8()
         return insn.offset + insn.size + branch_offset, branch_offset_bytes
 
     def read_short_inline_i(self, insn: Instruction) -> Tuple[int, bytes]:
