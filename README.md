@@ -128,9 +128,9 @@ $ pytest /local/path/to/src/tests
 Use the following commands to identify format errors:
 
 ```
-$ pycodestyle --show-source /local/path/to/src/dncil /local/path/to/src/tests
 $ black -l 120 -c /local/path/to/src
 $ isort --profile black --length-sort --line-width 120 -c /local/path/to/src
+$ mypy --config-file /local/path/to/src/.github/mypy/mypy.ini /local/path/to/src/dncil/ /local/path/to/src/scripts/ /local/path/to/src/tests/
 ```
 
 ## Credits
