@@ -49,10 +49,24 @@ class DnfileMethodBodyReader(CilMethodBodyReaderBase):
         return self.offset
 
 
+def read_dotnet_user_string(pe: dnfile.dnPE, token: StringToken) -> Optional[str]:
+    """read user string from #US stream"""
+    try:
+        user_string: Optional[dnfile.stream.UserString] = pe.net.user_strings.get_us(token.rid)
+    except UnicodeDecodeError as e:
+        logger.warn("failed to decode #US stream index 0x%08x (%s)" % (token.rid, e))
+        return InvalidToken(token.value)
+
+    if user_string is None:
+        return InvalidToken(token.value)
+
+    return user_string.value
+
+
 def resolve_token(pe: dnPE, token: Token) -> Any:
     """ """
     if isinstance(token, StringToken):
-        return pe.net.user_strings.get_us(token.rid).value
+        return read_dotnet_user_string(pe, token)
 
     table_name: str = DOTNET_META_TABLES_BY_INDEX.get(token.table, "")
     if not table_name:
