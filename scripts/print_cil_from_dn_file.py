@@ -7,7 +7,7 @@
 # See the License for the specific language governing permissions and limitations under the License.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Union, Optional
 
 if TYPE_CHECKING:
     from dnfile import dnPE
@@ -49,10 +49,23 @@ class DnfileMethodBodyReader(CilMethodBodyReaderBase):
         return self.offset
 
 
+def read_dotnet_user_string(pe: dnfile.dnPE, token: StringToken) -> Union[str, InvalidToken]:
+    """read user string from #US stream"""
+    try:
+        user_string: Optional[dnfile.stream.UserString] = pe.net.user_strings.get_us(token.rid)
+    except UnicodeDecodeError as e:
+        return InvalidToken(token.value)
+
+    if user_string is None:
+        return InvalidToken(token.value)
+
+    return user_string.value
+
+
 def resolve_token(pe: dnPE, token: Token) -> Any:
     """ """
     if isinstance(token, StringToken):
-        return pe.net.user_strings.get_us(token.rid).value
+        return read_dotnet_user_string(pe, token)
 
     table_name: str = DOTNET_META_TABLES_BY_INDEX.get(token.table, "")
     if not table_name:
