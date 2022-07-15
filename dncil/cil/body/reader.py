@@ -124,11 +124,11 @@ class CilMethodBodyReaderBase(abc.ABC):
 
     def read_inline_i(self, insn: Instruction) -> Tuple[int, bytes]:
         """get inline 32-bit integer"""
-        return self.read_uint32()
+        return self.read_int32()
 
     def read_inline_i8(self, insn: Instruction) -> Tuple[int, bytes]:
         """get inline 64-bit integer"""
-        return self.read_uint64()
+        return self.read_int64()
 
     def read_inline_method(self, insn: Instruction) -> Tuple[Token, bytes]:
         """get inline managed method token"""
@@ -225,11 +225,7 @@ class CilMethodBodyReaderBase(abc.ABC):
 
     def read_short_inline_i(self, insn: Instruction) -> Tuple[int, bytes]:
         """get inline 8-bit integer"""
-        if insn.opcode.value == OpCodeValue.Ldc_I4_S:
-            # signed byte
-            return self.read_int8()
-        # unsigned byte
-        return self.read_uint8()
+        return self.read_int8()
 
     def read_short_inline_r(self, insn: Instruction) -> Tuple[float, bytes]:
         """get inline 32-bit float"""
