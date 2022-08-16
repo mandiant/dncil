@@ -3,6 +3,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dncil)](https://pypi.org/project/dncil)
 [![Last release](https://img.shields.io/github/v/release/mandiant/dncil)](https://github.com/mandiant/dncil/releases)
 [![CI](https://github.com/mandiant/dncil/actions/workflows/tests.yml/badge.svg)](https://github.com/mandiant/dncil/actions/workflows/tests.yml)
+[![Downloads](https://pepy.tech/badge/dncil)](https://pepy.tech/project/dncil)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE.txt)
 
 `dncil` is a Common Intermediate Language (`CIL`) disassembly library written in Python that supports parsing the header, instructions, and exception handlers of `.NET` managed methods. Parsed data is exposed through an object-oriented API to help you quickly develop `CIL` analysis tools using `dncil`.
