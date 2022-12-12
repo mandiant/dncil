@@ -48,7 +48,11 @@ class CilMethodBodyReaderBase(abc.ABC):
     def _unpack(self, data_format: str) -> Tuple[Union[int, float], bytes]:
         """unpack bytes"""
         unpack_size: int = struct.calcsize(data_format)
-        unpack_bytes: bytes = self.read(unpack_size)
+        curr_off: int = self.tell()
+        try:
+            unpack_bytes: bytes = self.read(unpack_size)
+        except Exception as e:
+            raise MethodBodyFormatError("unable to read 0x%X bytes @ offset 0x%X" % (unpack_size, curr_off))
         if unpack_bytes == b"" or len(unpack_bytes) != unpack_size:
             raise MethodBodyFormatError(
                 "not enough data while parsing method body @ offset 0x%X" % (self.tell() - len(unpack_bytes))
