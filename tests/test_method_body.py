@@ -72,6 +72,100 @@ method_body_fat = binascii.unhexlify(
 """
 method_body_tiny = binascii.unhexlify("1E02280C00000A2A")
 
+"""
+.method private hidebysig static 
+    void Main (
+        string[] args
+    ) cil managed 
+{
+    // Header Size: 12 bytes
+    // Code Size: 142 (0x8E) bytes
+    // LocalVarSig Token: 0x11000001 RID: 1
+    .maxstack 2
+    .entrypoint
+    .locals init (
+        [0] int32 i,
+        [1] string text
+    )
+
+    /* 0x0000025C 02           */ IL_0000: ldarg.0
+    /* 0x0000025D 17           */ IL_0001: ldc.i4.1
+    /* 0x0000025E 9A           */ IL_0002: ldelem.ref
+    /* 0x0000025F 7201000070   */ IL_0003: ldstr     "test"
+    /* 0x00000264 280F00000A   */ IL_0008: call      bool [mscorlib]System.String::op_Equality(string, string)
+    /* 0x00000269 2C0C         */ IL_000D: brfalse.s IL_001B
+
+    /* 0x0000026B 720B000070   */ IL_000F: ldstr     "Hello from test"
+    /* 0x00000270 281000000A   */ IL_0014: call      void [mscorlib]System.Console::WriteLine(string)
+    /* 0x00000275 2B68         */ IL_0019: br.s      IL_0083
+
+    /* 0x00000277 02           */ IL_001B: ldarg.0
+    /* 0x00000278 17           */ IL_001C: ldc.i4.1
+    /* 0x00000279 9A           */ IL_001D: ldelem.ref
+    /* 0x0000027A 722B000070   */ IL_001E: ldstr     "testtest"
+    /* 0x0000027F 280F00000A   */ IL_0023: call      bool [mscorlib]System.String::op_Equality(string, string)
+    /* 0x00000284 2C0C         */ IL_0028: brfalse.s IL_0036
+
+    /* 0x00000286 723D000070   */ IL_002A: ldstr     "Hello from testtest"
+    /* 0x0000028B 281000000A   */ IL_002F: call      void [mscorlib]System.Console::WriteLine(string)
+    /* 0x00000290 2B4D         */ IL_0034: br.s      IL_0083
+
+    /* 0x00000292 16           */ IL_0036: ldc.i4.0
+    /* 0x00000293 0A           */ IL_0037: stloc.0
+    /* 0x00000294 2B0E         */ IL_0038: br.s      IL_0048
+    
+    // loop start (head: IL_0048)
+        /* 0x00000296 7265000070   */ IL_003A: ldstr     "Hello from unknown"
+        /* 0x0000029B 281000000A   */ IL_003F: call      void [mscorlib]System.Console::WriteLine(string)
+        /* 0x000002A0 06           */ IL_0044: ldloc.0
+        /* 0x000002A1 17           */ IL_0045: ldc.i4.1
+        /* 0x000002A2 58           */ IL_0046: add
+        /* 0x000002A3 0A           */ IL_0047: stloc.0
+
+        /* 0x000002A4 06           */ IL_0048: ldloc.0
+        /* 0x000002A5 1F64         */ IL_0049: ldc.i4.s  100
+        /* 0x000002A7 32ED         */ IL_004B: blt.s     IL_003A
+    // end loop
+
+    /* 0x000002A9 00           */ IL_004D: nop
+    .try
+    {
+        /* 0x000002AA 02           */ IL_004E: ldarg.0
+        /* 0x000002AB 17           */ IL_004F: ldc.i4.1
+        /* 0x000002AC 9A           */ IL_0050: ldelem.ref
+        /* 0x000002AD 281100000A   */ IL_0051: call      string [mscorlib]System.IO.File::ReadAllText(string)
+        /* 0x000002B2 0B           */ IL_0056: stloc.1
+        /* 0x000002B3 07           */ IL_0057: ldloc.1
+        /* 0x000002B4 728B000070   */ IL_0058: ldstr     "exit"
+        /* 0x000002B9 280F00000A   */ IL_005D: call      bool [mscorlib]System.String::op_Equality(string, string)
+        /* 0x000002BE 2C02         */ IL_0062: brfalse.s IL_0066
+
+        /* 0x000002C0 DE27         */ IL_0064: leave.s   IL_008D
+
+        /* 0x000002C2 07           */ IL_0066: ldloc.1
+        /* 0x000002C3 281000000A   */ IL_0067: call      void [mscorlib]System.Console::WriteLine(string)
+        /* 0x000002C8 07           */ IL_006C: ldloc.1
+        /* 0x000002C9 281000000A   */ IL_006D: call      void [mscorlib]System.Console::WriteLine(string)
+        /* 0x000002CE 07           */ IL_0072: ldloc.1
+        /* 0x000002CF 281000000A   */ IL_0073: call      void [mscorlib]System.Console::WriteLine(string)
+        /* 0x000002D4 17           */ IL_0078: ldc.i4.1
+        /* 0x000002D5 281200000A   */ IL_0079: call      void [mscorlib]System.Environment::Exit(int32)
+        /* 0x000002DA DE03         */ IL_007E: leave.s   IL_0083
+    } // end .try
+    catch [mscorlib]System.Object
+    {
+        /* 0x000002DC 26           */ IL_0080: pop
+        /* 0x000002DD DE0A         */ IL_0081: leave.s   IL_008D
+    } // end handler
+
+    /* 0x000002DF 7295000070   */ IL_0083: ldstr     "Failed"
+    /* 0x000002E4 281000000A   */ IL_0088: call      void [mscorlib]System.Console::WriteLine(string)
+
+    /* 0x000002E9 2A           */ IL_008D: ret
+} // end of method Program::Main
+"""
+method_body_fat_complex = binascii.unhexlify("1b3002008e0000000100001102179a7201000070280f00000a2c0c720b000070281000000a2b6802179a722b000070280f00000a2c0c723d000070281000000a2b4d160a2b0e7265000070281000000a0617580a061f6432ed0002179a281100000a0b07728b000070280f00000a2c02de2707281000000a07281000000a07281000000a17281200000ade0326de0a7295000070281000000a2a00000110000000004e003280000310000001")
+
 
 def test_invalid_header_format():
     reader = CilMethodBodyReaderBytes(b"\x00")
@@ -183,3 +277,20 @@ def test_read_fat_header_exception_handlers():
     assert body.exception_handlers[0].handler_end == 0x19
     assert isinstance(body.exception_handlers[0].catch_type, Token)
     assert body.exception_handlers[1].is_finally()
+
+
+def test_read_blocks():
+    reader = CilMethodBodyReaderBytes(method_body_fat_complex)
+    body = CilMethodBody(reader)
+    blocks = list(body.get_blocks())
+
+    assert len(blocks) == 13
+
+    block_bytes = bytes()
+    for bb in blocks:
+        block_bytes += bb.get_bytes()
+
+    print(binascii.hexlify(block_bytes))
+    print(binascii.hexlify(body.get_instruction_bytes()))
+
+    assert block_bytes == body.get_instruction_bytes()
