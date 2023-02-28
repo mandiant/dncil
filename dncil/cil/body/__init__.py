@@ -69,11 +69,11 @@ class CilMethodBody:
 
     def get_instruction_bytes(self) -> bytes:
         """get method instruction bytes"""
-        return self.raw_bytes[self.header_size : self.header_size + self.code_size + 1]
+        return self.raw_bytes[self.header_size : self.header_size + self.code_size]
 
     def get_exception_handler_bytes(self) -> bytes:
         """get method exception handler bytes"""
-        return self.raw_bytes[self.header_size + self.code_size + 1 :]
+        return self.raw_bytes[self.header_size + self.code_size :]
 
     def parse_header(self, reader: CilMethodBodyReaderBase):
         """get method body header"""
