@@ -2117,7 +2117,7 @@ class OpCodes:
         self.one_byte_op_codes: List[OpCode] = [OpCodes.UNKNOWN1] * 0x100
         self.two_byte_op_codes: List[OpCode] = [OpCodes.UNKNOWN2] * 0x100
 
-        for (_, opcode) in inspect.getmembers(OpCodes, lambda o: isinstance(o, OpCode)):
+        for _, opcode in inspect.getmembers(OpCodes, lambda o: isinstance(o, OpCode)):
             if opcode.value >> 8 == 0:
                 self.one_byte_op_codes[opcode.value] = opcode
             elif opcode.value >> 8 == 0xFE:
