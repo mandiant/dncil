@@ -223,6 +223,12 @@ def test_read_tiny_header_instructions():
     assert body.instructions[2].offset == 0x7
     assert body.instructions[2].opcode.value == OpCodeValue.Ret
 
+    insn_bytes = bytes()
+    for insn in body.instructions:
+        insn_bytes += insn.get_bytes()
+
+    assert insn_bytes == body.get_instruction_bytes()
+
 
 def test_read_fat_header():
     reader = CilMethodBodyReaderBytes(method_body_fat)
@@ -264,6 +270,12 @@ def test_read_fat_header_instructions():
     assert body.instructions[1].get_opcode_size() + body.instructions[1].get_operand_size() == body.instructions[1].size
     assert body.instructions[9].offset == 0x2F
     assert body.instructions[9].opcode.value == OpCodeValue.Endfinally
+
+    insn_bytes = bytes()
+    for insn in body.instructions:
+        insn_bytes += insn.get_bytes()
+
+    assert insn_bytes == body.get_instruction_bytes()
 
 
 def test_read_fat_header_exception_handlers():
