@@ -164,7 +164,9 @@ method_body_tiny = binascii.unhexlify("1E02280C00000A2A")
     /* 0x000002E9 2A           */ IL_008D: ret
 } // end of method Program::Main
 """
-method_body_fat_complex = binascii.unhexlify("1b3002008e0000000100001102179a7201000070280f00000a2c0c720b000070281000000a2b6802179a722b000070280f00000a2c0c723d000070281000000a2b4d160a2b0e7265000070281000000a0617580a061f6432ed0002179a281100000a0b07728b000070280f00000a2c02de2707281000000a07281000000a07281000000a17281200000ade0326de0a7295000070281000000a2a00000110000000004e003280000310000001")
+method_body_fat_complex = binascii.unhexlify(
+    "1b3002008e0000000100001102179a7201000070280f00000a2c0c720b000070281000000a2b6802179a722b000070280f00000a2c0c723d000070281000000a2b4d160a2b0e7265000070281000000a0617580a061f6432ed0002179a281100000a0b07728b000070280f00000a2c02de2707281000000a07281000000a07281000000a17281200000ade0326de0a7295000070281000000a2a00000110000000004e003280000310000001"
+)
 
 
 def test_invalid_header_format():
@@ -291,18 +293,34 @@ def test_read_fat_header_exception_handlers():
     assert body.exception_handlers[1].is_finally()
 
 
-def test_read_blocks():
+def test_read_tiny_header_blocks():
+    reader = CilMethodBodyReaderBytes(method_body_tiny)
+    body = CilMethodBody(reader)
+    blocks = list(body.get_blocks())
+
+    assert len(blocks) == 1
+    assert blocks[0].get_bytes() == b"\x02\x28\x0C\x00\x00\x0A\x2a"
+    assert blocks[0].instructions[-1].opcode.value == OpCodeValue.Ret
+
+    block_bytes = b""
+    for bb in blocks:
+        block_bytes += bb.get_bytes()
+
+    assert block_bytes == body.get_instruction_bytes()
+
+
+def test_read_fat_header_complex_blocks():
     reader = CilMethodBodyReaderBytes(method_body_fat_complex)
     body = CilMethodBody(reader)
     blocks = list(body.get_blocks())
 
     assert len(blocks) == 13
+    assert blocks[4].get_bytes() == b"\x16\x0a\x2b\x0e"
+    assert blocks[11].instructions[0].opcode.value == OpCodeValue.Ldstr
+    assert blocks[11].instructions[-1].opcode.value == OpCodeValue.Call
 
-    block_bytes = bytes()
+    block_bytes = b""
     for bb in blocks:
         block_bytes += bb.get_bytes()
-
-    print(binascii.hexlify(block_bytes))
-    print(binascii.hexlify(body.get_instruction_bytes()))
 
     assert block_bytes == body.get_instruction_bytes()

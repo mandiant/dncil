@@ -8,19 +8,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Set, Dict, List, Iterator, Optional, cast
 
 if TYPE_CHECKING:
     from dncil.cil.instruction import Instruction
     from dncil.cil.body.reader import CilMethodBodyReaderBase
 
+from dncil.cil.block import BasicBlock
 from dncil.cil.enums import CorILMethod, CorILMethodSect
 from dncil.cil.error import MethodBodyFormatError
 from dncil.clr.token import Token
 from dncil.cil.exception import ExceptionHandler
 from dncil.cil.body.flags import CilMethodBodyFlags
 from dncil.cil.instruction import Instruction
-from dncil.cil.block import BasicBlock
 
 
 class CilMethodBody:
@@ -74,7 +74,7 @@ class CilMethodBody:
 
     def get_exception_handler_bytes(self) -> bytes:
         """get method exception handler bytes"""
-        return self.raw_bytes[self.header_size + self.code_size:]
+        return self.raw_bytes[self.header_size + self.code_size :]
 
     def get_blocks(self) -> Iterator[BasicBlock]:
         blocks: List[BasicBlock] = []
@@ -93,7 +93,7 @@ class CilMethodBody:
 
             if any((insn.is_br(), insn.is_cond_br(), insn.is_leave())):
                 # add #2
-                leaders.add(insn.operand)
+                leaders.add(cast(int, insn.operand))
                 # add #3
                 try:
                     leaders.add(self.instructions[idx + 1].offset)
@@ -124,7 +124,7 @@ class CilMethodBody:
 
             # connect branches to other basic blocks
             if any((last.is_br(), last.is_cond_br(), last.is_leave())):
-                bb_branch: Optional[BasicBlock] = bb_map.get(last.operand, None)
+                bb_branch: Optional[BasicBlock] = bb_map.get(cast(int, last.operand), None)
                 if bb_branch is not None:
                     # invalid branch, may be seen in obfuscated IL
                     bb.succs.append(bb_branch)

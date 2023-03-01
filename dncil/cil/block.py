@@ -8,13 +8,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Union, Optional, cast
+from typing import List, Optional
 
 from dncil.cil.instruction import Instruction
 
 
 class BasicBlock:
-    def __init__(self, instructions: List[Instruction] = None):
+    def __init__(self, instructions: Optional[List[Instruction]] = None):
         self.instructions = instructions or []
         self.preds: List[BasicBlock] = []
         self.succs: List[BasicBlock] = []
