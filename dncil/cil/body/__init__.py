@@ -38,6 +38,7 @@ class CilMethodBody:
         self.exception_handlers_size: int
 
         self.instructions: List[Instruction] = []
+        self.basic_blocks: List[BasicBlock] = []
         self.exception_handlers: List[ExceptionHandler] = []
 
         # set method offset
@@ -47,6 +48,7 @@ class CilMethodBody:
         self.parse_header(reader)
         self.parse_instructions(reader)
         self.parse_exception_handlers(reader)
+        self.parse_basic_blocks()
 
         # use initial offset + method body size to read method body bytes (not the most efficient)
         final_pos = reader.tell()
@@ -76,74 +78,8 @@ class CilMethodBody:
         """get method exception handler bytes"""
         return self.raw_bytes[self.header_size + self.code_size :]
 
-    def get_blocks(self) -> Iterator[BasicBlock]:
-        blocks: List[BasicBlock] = []
-
-        # calculate basic block leaders where,
-        #   1. The first instruction of the intermediate code is a leader
-        #   2. Instructions that are targets of unconditional or conditional jump/goto statements are leaders
-        #   3. Instructions that immediately follow unconditional or conditional jump/goto statements are considered leaders
-        #   https://www.geeksforgeeks.org/basic-blocks-in-compiler-design/
-
-        leaders: Set[int] = set()
-        for idx, insn in enumerate(self.instructions):
-            if idx == 0:
-                # add #1
-                leaders.add(insn.offset)
-
-            if any((insn.is_br(), insn.is_cond_br(), insn.is_leave())):
-                # add #2
-                leaders.add(cast(int, insn.operand))
-                # add #3
-                try:
-                    leaders.add(self.instructions[idx + 1].offset)
-                except IndexError:
-                    # end of method
-                    continue
-
-        # build basic blocks using leaders
-        bb_curr: Optional[BasicBlock] = None
-        for idx, insn in enumerate(self.instructions):
-            if insn.offset in leaders:
-                # new leader, new basic block
-                bb_curr = BasicBlock(instructions=[insn])
-                blocks.append(bb_curr)
-                continue
-
-            assert bb_curr is not None
-            bb_curr.instructions.append(insn)
-
-        # create mapping of first instruction to basic block
-        bb_map: Dict[int, BasicBlock] = {}
-        for bb in blocks:
-            bb_map[bb.start_offset] = bb
-
-        # connect basic blocks
-        for idx, bb in enumerate(blocks):
-            last = bb.instructions[-1]
-
-            # connect branches to other basic blocks
-            if any((last.is_br(), last.is_cond_br(), last.is_leave())):
-                bb_branch: Optional[BasicBlock] = bb_map.get(cast(int, last.operand), None)
-                if bb_branch is not None:
-                    # invalid branch, may be seen in obfuscated IL
-                    bb.succs.append(bb_branch)
-                    bb_branch.preds.append(bb)
-
-            if any((last.is_br(), last.is_leave())):
-                # no fallthrough
-                continue
-
-            # connect fallthrough
-            try:
-                bb_next: BasicBlock = blocks[idx + 1]
-                bb.succs.append(bb_next)
-                bb_next.preds.append(bb)
-            except IndexError:
-                # end of method
-                continue
-
-        yield from blocks
+    def get_basic_blocks(self) -> Iterator[BasicBlock]:
+        yield from self.basic_blocks
 
     def parse_header(self, reader: CilMethodBodyReaderBase):
         """get method body header"""
@@ -271,3 +207,68 @@ class CilMethodBody:
                 _ = reader.read_uint32()[0]
 
             self.exception_handlers.append(eh)
+
+    def parse_basic_blocks(self):
+        # calculate basic block leaders where,
+        #   1. The first instruction of the intermediate code is a leader
+        #   2. Instructions that are targets of unconditional or conditional jump/goto statements are leaders
+        #   3. Instructions that immediately follow unconditional or conditional jump/goto statements are considered leaders
+        #   https://www.geeksforgeeks.org/basic-blocks-in-compiler-design/
+
+        leaders: Set[int] = set()
+        for idx, insn in enumerate(self.instructions):
+            if idx == 0:
+                # add #1
+                leaders.add(insn.offset)
+
+            if any((insn.is_br(), insn.is_cond_br(), insn.is_leave())):
+                # add #2
+                leaders.add(cast(int, insn.operand))
+                # add #3
+                try:
+                    leaders.add(self.instructions[idx + 1].offset)
+                except IndexError:
+                    # end of method
+                    continue
+
+        # build basic blocks using leaders
+        bb_curr: Optional[BasicBlock] = None
+        for idx, insn in enumerate(self.instructions):
+            if insn.offset in leaders:
+                # new leader, new basic block
+                bb_curr = BasicBlock(instructions=[insn])
+                self.basic_blocks.append(bb_curr)
+                continue
+
+            assert bb_curr is not None
+            bb_curr.instructions.append(insn)
+
+        # create mapping of first instruction to basic block
+        bb_map: Dict[int, BasicBlock] = {}
+        for bb in self.basic_blocks:
+            bb_map[bb.start_offset] = bb
+
+        # connect basic blocks
+        for idx, bb in enumerate(self.basic_blocks):
+            last = bb.instructions[-1]
+
+            # connect branches to other basic blocks
+            if any((last.is_br(), last.is_cond_br(), last.is_leave())):
+                bb_branch: Optional[BasicBlock] = bb_map.get(cast(int, last.operand), None)
+                if bb_branch is not None:
+                    # invalid branch, may be seen in obfuscated IL
+                    bb.succs.append(bb_branch)
+                    bb_branch.preds.append(bb)
+
+            if any((last.is_br(), last.is_leave())):
+                # no fallthrough
+                continue
+
+            # connect fallthrough
+            try:
+                bb_next: BasicBlock = self.basic_blocks[idx + 1]
+                bb.succs.append(bb_next)
+                bb_next.preds.append(bb)
+            except IndexError:
+                # end of method
+                continue

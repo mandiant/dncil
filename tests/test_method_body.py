@@ -296,7 +296,7 @@ def test_read_fat_header_exception_handlers():
 def test_read_tiny_header_blocks():
     reader = CilMethodBodyReaderBytes(method_body_tiny)
     body = CilMethodBody(reader)
-    blocks = list(body.get_blocks())
+    blocks = list(body.get_basic_blocks())
 
     assert len(blocks) == 1
     assert blocks[0].get_bytes() == b"\x02\x28\x0C\x00\x00\x0A\x2a"
@@ -315,7 +315,7 @@ def test_read_tiny_header_blocks():
 def test_read_fat_header_complex_blocks():
     reader = CilMethodBodyReaderBytes(method_body_fat_complex)
     body = CilMethodBody(reader)
-    blocks = list(body.get_blocks())
+    blocks = list(body.get_basic_blocks())
 
     assert len(blocks) == 13
     assert blocks[4].get_bytes() == b"\x16\x0a\x2b\x0e"
