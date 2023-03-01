@@ -308,6 +308,8 @@ def test_read_tiny_header_blocks():
         block_bytes += bb.get_bytes()
 
     assert block_bytes == body.get_instruction_bytes()
+    assert len(blocks[0].preds) == 0
+    assert len(blocks[-1].succs) == 0
 
 
 def test_read_fat_header_complex_blocks():
@@ -326,3 +328,16 @@ def test_read_fat_header_complex_blocks():
         block_bytes += bb.get_bytes()
 
     assert block_bytes == body.get_instruction_bytes()
+    assert len(blocks[0].preds) == 0
+    assert len(blocks[-1].succs) == 0
+    assert len(blocks[-1].preds) == 3
+    assert len(blocks[9].preds) == 1
+    assert len(blocks[9].succs) == 1
+    assert len(blocks[1].succs) == 1
+    assert blocks[8].start_offset in [bb.start_offset for bb in blocks[-1].preds]
+    assert blocks[10].start_offset in [bb.start_offset for bb in blocks[-1].preds]
+    assert blocks[11].start_offset in [bb.start_offset for bb in blocks[-1].preds]
+    assert blocks[7].start_offset in [bb.start_offset for bb in blocks[9].preds]
+    assert blocks[7].start_offset in [bb.start_offset for bb in blocks[8].preds]
+    assert blocks[9].start_offset in [bb.start_offset for bb in blocks[7].succs]
+    assert blocks[8].start_offset in [bb.start_offset for bb in blocks[7].succs]
