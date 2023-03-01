@@ -48,7 +48,6 @@ class CilMethodBody:
         self.parse_header(reader)
         self.parse_instructions(reader)
         self.parse_exception_handlers(reader)
-        self.parse_basic_blocks()
 
         # use initial offset + method body size to read method body bytes (not the most efficient)
         final_pos = reader.tell()
@@ -79,6 +78,8 @@ class CilMethodBody:
         return self.raw_bytes[self.header_size + self.code_size :]
 
     def get_basic_blocks(self) -> Iterator[BasicBlock]:
+        if not self.basic_blocks:
+            self.parse_basic_blocks()
         yield from self.basic_blocks
 
     def parse_header(self, reader: CilMethodBodyReaderBase):
