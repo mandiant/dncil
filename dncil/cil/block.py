@@ -32,7 +32,7 @@ class BasicBlock:
         return self.end_offset - self.start_offset
 
     def get_bytes(self) -> bytes:
-        block_bytes: bytes = bytes()
+        block_bytes: bytes = b""
 
         for insn in self.instructions:
             block_bytes += insn.get_bytes()

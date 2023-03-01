@@ -300,6 +300,7 @@ def test_read_tiny_header_blocks():
 
     assert len(blocks) == 1
     assert blocks[0].get_bytes() == b"\x02\x28\x0C\x00\x00\x0A\x2a"
+    assert blocks[0].size == 7
     assert blocks[0].instructions[-1].opcode.value == OpCodeValue.Ret
 
     block_bytes = b""
@@ -316,6 +317,7 @@ def test_read_fat_header_complex_blocks():
 
     assert len(blocks) == 13
     assert blocks[4].get_bytes() == b"\x16\x0a\x2b\x0e"
+    assert blocks[11].size == 10
     assert blocks[11].instructions[0].opcode.value == OpCodeValue.Ldstr
     assert blocks[11].instructions[-1].opcode.value == OpCodeValue.Call
 
