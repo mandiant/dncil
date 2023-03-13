@@ -46,7 +46,7 @@ setuptools.setup(
             "pycodestyle==2.10.0",
             "black==23.1.0",
             "isort==5.11.4",
-            "mypy==1.0.1",
+            "mypy==1.1.1",
             "dnfile==0.13.0",
             "hexdump==3.3.0",
         ],
