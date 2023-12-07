@@ -39,14 +39,14 @@ setuptools.setup(
     install_requires=requirements,
     extras_require={
         "dev": [
-            "pytest==7.2.2",
-            "pytest-sugar==0.9.6",
+            "pytest==7.4.0",
+            "pytest-sugar==0.9.7",
             "pytest-instafail==0.5.0",
-            "pytest-cov==4.0.0",
+            "pytest-cov==4.1.0",
             "pycodestyle==2.10.0",
             "black==23.3.0",
             "isort==5.12.0",
-            "mypy==1.1.1",
+            "mypy==1.4.1",
             "dnfile==0.13.0",
             "hexdump==3.3.0",
         ],
@@ -62,5 +62,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Topic :: Security",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )
