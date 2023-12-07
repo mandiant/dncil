@@ -39,12 +39,12 @@ setuptools.setup(
     install_requires=requirements,
     extras_require={
         "dev": [
-            "pytest==7.4.0",
+            "pytest==7.4.3",
             "pytest-sugar==0.9.7",
             "pytest-instafail==0.5.0",
             "pytest-cov==4.1.0",
             "pycodestyle==2.11.1",
-            "black==23.3.0",
+            "black==23.11.0",
             "isort==5.12.0",
             "mypy==1.7.1",
             "dnfile==0.13.0",
