@@ -45,7 +45,7 @@ setuptools.setup(
             "pytest-cov==4.1.0",
             "pycodestyle==2.11.1",
             "black==23.3.0",
-            "isort==5.11.4",
+            "isort==5.12.0",
             "mypy==1.4.1",
             "dnfile==0.13.0",
             "hexdump==3.3.0",
@@ -62,5 +62,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Topic :: Security",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
 )
