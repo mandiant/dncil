@@ -36,8 +36,8 @@ class Token(object):
         return str(self)
 
     def __int__(self) -> int:
-        return int(self.value)
-    
+        return self.value
+
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Token) and self.value == other.value
 

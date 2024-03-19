@@ -20,10 +20,10 @@ class Argument:
 
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __int__(self) -> int:
-        return int(self.index)
-    
+        return self.index
+
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Argument) and self.index == other.index
 
