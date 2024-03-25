@@ -52,7 +52,7 @@ class DnfileMethodBodyReader(CilMethodBodyReaderBase):
 def read_dotnet_user_string(pe: dnfile.dnPE, token: StringToken) -> Union[str, InvalidToken]:
     """read user string from #US stream"""
     try:
-        user_string: Optional[dnfile.stream.UserString] = pe.net.user_strings.get_us(token.rid)
+        user_string: Optional[dnfile.stream.UserString] = pe.net.user_strings.get(token.rid)
     except UnicodeDecodeError as e:
         return InvalidToken(token.value)
 
