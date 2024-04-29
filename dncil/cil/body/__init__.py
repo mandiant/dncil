@@ -216,16 +216,13 @@ class CilMethodBody:
         #   3. Instructions that immediately follow unconditional or conditional jump/goto statements are considered leaders
         #   https://www.geeksforgeeks.org/basic-blocks-in-compiler-design/
 
-        leaders: Set[int] = set()
+        # add #1: first instruction is a leader
+        leaders: Set[int] = set(self.instructions[:1]) if self.instructions else set()
         for idx, insn in enumerate(self.instructions):
-            if idx == 0:
-                # add #1
-                leaders.add(insn.offset)
-
             if any((insn.is_br(), insn.is_cond_br(), insn.is_leave())):
-                # add #2
+                # add #2: targets of branches are leaders
                 leaders.add(cast(int, insn.operand))
-                # add #3
+                # add #3: instructions immediately following unconditional or conditional branches are leaders
                 try:
                     leaders.add(self.instructions[idx + 1].offset)
                 except IndexError:
@@ -239,10 +236,9 @@ class CilMethodBody:
                 # new leader, new basic block
                 bb_curr = BasicBlock(instructions=[insn])
                 self.basic_blocks.append(bb_curr)
-                continue
-
-            assert bb_curr is not None
-            bb_curr.instructions.append(insn)
+            else:
+                assert bb_curr is not None
+                bb_curr.instructions.append(insn)
 
         # create mapping of first instruction to basic block
         bb_map: Dict[int, BasicBlock] = {}
@@ -265,11 +261,14 @@ class CilMethodBody:
                 # no fallthrough
                 continue
 
-            # connect fallthrough
+            # connect fallthrough:
+            # if a basic block has a fallthrough successor, it will be the next basic block in our list
+            # since instructions, leaders, and basic blocks are processed sequentially
             try:
                 bb_next: BasicBlock = self.basic_blocks[idx + 1]
-                bb.succs.append(bb_next)
-                bb_next.preds.append(bb)
             except IndexError:
                 # end of method
                 continue
+            else:
+                bb.succs.append(bb_next)
+                bb_next.preds.append(bb)
