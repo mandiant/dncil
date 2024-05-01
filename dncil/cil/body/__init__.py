@@ -217,7 +217,9 @@ class CilMethodBody:
         #   https://www.geeksforgeeks.org/basic-blocks-in-compiler-design/
 
         # add #1: first instruction is a leader
-        leaders: Set[int] = set(self.instructions[:1]) if self.instructions else set()
+        if not self.instructions:
+            return
+        leaders: Set[int] = set([self.instructions[0].offset])
         for idx, insn in enumerate(self.instructions):
             if any((insn.is_br(), insn.is_cond_br(), insn.is_leave())):
                 # add #2: targets of branches are leaders
