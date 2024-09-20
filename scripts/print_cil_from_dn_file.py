@@ -56,7 +56,7 @@ def read_dotnet_user_string(pe: dnfile.dnPE, token: StringToken) -> Union[str, I
     except UnicodeDecodeError as e:
         return InvalidToken(token.value)
 
-    if user_string is None or user_string.value is None:
+    if user_string is None or (isinstance(user_string, bytes) or user_string.value is None):
         return InvalidToken(token.value)
 
     return user_string.value
