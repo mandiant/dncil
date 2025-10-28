@@ -9,7 +9,7 @@ on:
 jobs:
 
   code_style:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout dncil
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -33,17 +33,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019, macos-12]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         # across all operating systems
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.8", "3.13"]
         include:
           # on Ubuntu run these as well
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             python-version: "3.9"
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             python-version: "3.10"
-          - os: ubuntu-20.04
+          - os: ubuntu-latest
             python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.12"
     steps:
     - name: Checkout dncil with submodules
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
