@@ -13,10 +13,10 @@ jobs:
     steps:
     - name: Checkout dncil
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-    - name: Set up Python 3.8
+    - name: Set up Python 3.10
       uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
       with:
-        python-version: "3.8"
+        python-version: "3.10"
     - name: Install dependencies
       run: pip install -e .[dev]
     - name: Lint with isort
@@ -35,17 +35,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         # across all operating systems
-        python-version: ["3.8", "3.13"]
+        python-version: ["3.10", "3.14"]
         include:
           # on Ubuntu run these as well
-          - os: ubuntu-latest
-            python-version: "3.9"
-          - os: ubuntu-latest
-            python-version: "3.10"
           - os: ubuntu-latest
             python-version: "3.11"
           - os: ubuntu-latest
             python-version: "3.12"
+          - os: ubuntu-latest
+            python-version: "3.13"
     steps:
     - name: Checkout dncil with submodules
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
