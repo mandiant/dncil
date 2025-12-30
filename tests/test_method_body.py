@@ -121,7 +121,7 @@ def test_read_tiny_header_instructions():
     assert isinstance(body.instructions[1].operand, Token)
     assert body.instructions[1].operand.table == 0xA
     assert body.instructions[1].operand.rid == 0xC
-    assert body.instructions[1].get_bytes() == b"\x28\x0C\x00\x00\x0A"
+    assert body.instructions[1].get_bytes() == b"\x28\x0c\x00\x00\x0a"
     assert (
         body.instructions[1].get_opcode_bytes() + body.instructions[1].get_operand_bytes()
         == body.instructions[1].get_bytes()
@@ -167,7 +167,7 @@ def test_read_fat_header_instructions():
     assert isinstance(body.instructions[1].operand, Token)
     assert body.instructions[1].operand.table == 0xA
     assert body.instructions[1].operand.rid == 0xB
-    assert body.instructions[1].get_bytes() == b"\x28\x0B\x00\x00\x0A"
+    assert body.instructions[1].get_bytes() == b"\x28\x0b\x00\x00\x0a"
     assert (
         body.instructions[1].get_opcode_bytes() + body.instructions[1].get_operand_bytes()
         == body.instructions[1].get_bytes()
