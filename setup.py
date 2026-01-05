@@ -45,7 +45,7 @@ setuptools.setup(
             "pytest-cov==7.0.0",
             "pycodestyle==2.12.1",
             "black==25.12.0",
-            "isort==5.13.2",
+            "isort==7.0.0",
             "mypy==1.19.1",
             "dnfile==0.17.0",
             "hexdump==3.3.0",
