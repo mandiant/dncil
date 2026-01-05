@@ -40,7 +40,7 @@ setuptools.setup(
     extras_require={
         "dev": [
             "pytest==9.0.2",
-            "pytest-sugar==1.0.0",
+            "pytest-sugar==1.1.1",
             "pytest-instafail==0.5.0",
             "pytest-cov==7.0.0",
             "pycodestyle==2.14.0",
