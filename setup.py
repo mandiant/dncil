@@ -47,7 +47,7 @@ setuptools.setup(
             "black==26.1.0",
             "isort==7.0.0",
             "mypy==1.19.1",
-            "dnfile==0.17.0",
+            "dnfile==0.18.0",
             "hexdump==3.3.0",
         ],
     },
