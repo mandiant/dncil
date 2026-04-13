@@ -39,7 +39,7 @@ setuptools.setup(
     install_requires=requirements,
     extras_require={
         "dev": [
-            "pytest==9.0.2",
+            "pytest==9.0.3",
             "pytest-sugar==1.1.1",
             "pytest-instafail==0.5.0",
             "pytest-cov==7.1.0",
