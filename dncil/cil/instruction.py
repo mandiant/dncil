@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class Instruction:
     """store managed instruction"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.offset: int
         self.opcode: OpCode
         self.opcode_bytes: bytes
@@ -45,7 +45,7 @@ class Instruction:
         return self.offset
 
     @property
-    def mnemonic(self):
+    def mnemonic(self) -> str:
         """get instruction opcode mnemonic"""
         return self.opcode.name
 
