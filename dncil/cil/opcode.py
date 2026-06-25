@@ -26,7 +26,7 @@ class OpCode:
         op_code_type: OpCodeType,
         stack_push: StackBehaviour,
         stack_pop: StackBehaviour,
-    ):
+    ) -> None:
         self.name: str = name
         self.value: OpCodeValue = value
         self.operand_type: OperandType = operand_type

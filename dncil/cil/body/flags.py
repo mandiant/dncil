@@ -25,8 +25,8 @@ class CilMethodBodyFlags:
         self.InitLocals: bool = bool(flags & CorILMethod.InitLocals)
         self.CompressedIL: bool = bool(flags & CorILMethod.CompressedIL)
 
-    def __str__(self):
-        def _to_print(v):
+    def __str__(self) -> str:
+        def _to_print(v: bool) -> str:
             return "true" if v else "false"
 
         return (
@@ -39,7 +39,7 @@ class CilMethodBodyFlags:
             + f"CompressedIL :  {_to_print(self.CompressedIL)}\n"
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
     def is_tiny(self) -> bool:
